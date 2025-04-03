@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tentenn/goversion"
+	"github.com/tenntenn/goversion"
 )
 
 func main() {
