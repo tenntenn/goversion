@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/tentenn/goversion"
+	"github.com/tenntenn/goversion"
 )
 
 func TestFetchLatest(t *testing.T) {
