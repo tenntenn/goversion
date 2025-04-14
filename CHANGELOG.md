@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.3](https://github.com/tenntenn/goversion/compare/v0.1.2...v0.1.3) - 2025-04-14
+- Add LICENCE by @tenntenn in https://github.com/tenntenn/goversion/pull/10
+
 ## [v0.1.2](https://github.com/tenntenn/goversion/compare/v0.1.1...v0.1.2) - 2025-04-03
 - Fix import path by @tenntenn in https://github.com/tenntenn/goversion/pull/7
 - Update tagpr by @tenntenn in https://github.com/tenntenn/goversion/pull/9
