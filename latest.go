@@ -9,16 +9,28 @@ import (
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/newmo-oss/ctxtime"
+	"github.com/tenntenn/goplayground"
+)
+
+type Source string
+
+const (
+	SourceGoDotDev   Source = "go.dev"
+	SourcePlayground Source = "play.golang.org"
 )
 
 type Latest struct {
 	Version string
 	Time    time.Time
+	Source  Source
 }
 
 type Fetcher struct {
-	url        string
-	httpClient *http.Client
+	url           string
+	playgroundURL string
+	httpClient    *http.Client
 }
 
 func NewFetcher() *Fetcher {
@@ -32,11 +44,30 @@ func (f *Fetcher) SetURL(url string) {
 	f.url = url
 }
 
+func (f *Fetcher) SetPlaygroundURL(url string) {
+	f.playgroundURL = url
+}
+
 func (f *Fetcher) SetHTTPClient(httpClient *http.Client) {
 	f.httpClient = httpClient
 }
 
 func (f *Fetcher) FetchLatest(ctx context.Context) (*Latest, error) {
+	latest, err := f.fromGoDotDev(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get latest version via go.dev/VERSION?m=text: %w", err)
+	}
+
+	now := ctxtime.Now(ctx)
+	if now.Sub(latest.Time) < 24*time.Hour*30 {
+		return latest, nil
+	}
+
+	// fallback
+	return f.fromPlayground(ctx)
+}
+
+func (f *Fetcher) fromGoDotDev(ctx context.Context) (*Latest, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, f.url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request to %q: %w", f.url, err)
@@ -76,6 +107,24 @@ func (f *Fetcher) FetchLatest(ctx context.Context) (*Latest, error) {
 	return &Latest{
 		Version: goversion,
 		Time:    tm,
+		Source:  SourceGoDotDev,
+	}, nil
+}
+
+func (f *Fetcher) fromPlayground(ctx context.Context) (*Latest, error) {
+	cli := &goplayground.Client{
+		HTTPClient: f.httpClient,
+		BaseURL:    f.playgroundURL,
+	}
+
+	ver, err := cli.Version()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get latest version via play.golang.org/version: %w", err)
+	}
+
+	return &Latest{
+		Version: ver.Version,
+		Source:  SourcePlayground,
 	}, nil
 }
 
