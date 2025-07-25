@@ -27,7 +27,7 @@ import (
 
 func main() {
 	// fetch latest go version via "https://go.dev/VERSION?m=text"
-	ctx := context.Context()
+	ctx := context.Background()
 	latest, err := goversion.FetchLatest(ctx)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)
