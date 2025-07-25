@@ -1,5 +1,7 @@
 # Changelog
 
+## [v0.1.5](https://github.com/tenntenn/goversion/compare/v0.1.4...v0.1.5) - 2025-07-25
+
 ## [v0.1.4](https://github.com/tenntenn/goversion/compare/v0.1.3...v0.1.4) - 2025-05-07
 - Add fallback by @tenntenn in https://github.com/tenntenn/goversion/pull/12
 
