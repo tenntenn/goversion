@@ -1,3 +1,4 @@
+// Deprecated: use cmd/gover instead.
 package main
 
 import (

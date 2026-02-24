@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"go/version"
 	"net/http"
-
-	"github.com/newmo-oss/ctxtime"
-	"time"
 )
 
 const SourceGoDotDevDL Source = "go.dev/dl"
@@ -17,14 +14,9 @@ func (f *Fetcher) SetDLURL(url string) {
 	f.dlURL = url
 }
 
-func (f *Fetcher) FetchStable(ctx context.Context) (*Latest, error) {
+func (f *Fetcher) FetchStable(ctx context.Context) (*Release, error) {
 	stable, err := f.fromGoDotDevDL(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get stable version via go.dev/dl/?mode=json: %w", err)
-	}
-
-	now := ctxtime.Now(ctx)
-	if now.Sub(stable.Time) < 24*time.Hour*30 {
+	if err == nil {
 		return stable, nil
 	}
 
@@ -37,7 +29,7 @@ type dlRelease struct {
 	Stable  bool   `json:"stable"`
 }
 
-func (f *Fetcher) fromGoDotDevDL(ctx context.Context) (*Latest, error) {
+func (f *Fetcher) fromGoDotDevDL(ctx context.Context) (*Release, error) {
 	dlURL := f.dlURL
 	if dlURL == "" {
 		dlURL = "https://go.dev/dl/?mode=json"
@@ -65,8 +57,9 @@ func (f *Fetcher) fromGoDotDevDL(ctx context.Context) (*Latest, error) {
 
 	for _, r := range releases {
 		if r.Stable && version.IsValid(r.Version) {
-			return &Latest{
+			return &Release{
 				Version: r.Version,
+				Stable:  true,
 				Source:  SourceGoDotDevDL,
 			}, nil
 		}
@@ -75,6 +68,6 @@ func (f *Fetcher) fromGoDotDevDL(ctx context.Context) (*Latest, error) {
 	return nil, fmt.Errorf("no stable version found")
 }
 
-func FetchStable(ctx context.Context) (*Latest, error) {
+func FetchStable(ctx context.Context) (*Release, error) {
 	return NewFetcher().FetchStable(ctx)
 }

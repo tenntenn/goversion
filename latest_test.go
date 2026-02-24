@@ -22,8 +22,8 @@ import (
 func TestFetchLatest(t *testing.T) {
 	t.Parallel()
 
-	latest := func(ver string, tm time.Time, src goversion.Source) *goversion.Latest {
-		return &goversion.Latest{
+	release := func(ver string, tm time.Time, src goversion.Source) *goversion.Release {
+		return &goversion.Release{
 			Version: ver,
 			Time:    tm,
 			Source:  src,
@@ -35,11 +35,11 @@ func TestFetchLatest(t *testing.T) {
 
 	cases := map[string]struct {
 		now     time.Time
-		want    *goversion.Latest
+		want    *goversion.Release
 		wantErr bool
 	}{
-		"go.dev":     {baseTime, latest("go1.24.2", baseTime, goversion.SourceGoDotDev), false},
-		"playground": {baseTime.Add(24 * time.Hour * 31), latest("go1.24.2", zeroTime, goversion.SourcePlayground), false},
+		"go.dev":     {baseTime, release("go1.24.2", baseTime, goversion.SourceGoDotDev), false},
+		"playground": {baseTime.Add(24 * time.Hour * 31), release("go1.24.2", zeroTime, goversion.SourcePlayground), false},
 		"ng":         {zeroTime, nil, true},
 	}
 
@@ -74,7 +74,7 @@ func TestFetchLatest(t *testing.T) {
 
 }
 
-func newHandler(t *testing.T, want *goversion.Latest) http.Handler {
+func newHandler(t *testing.T, want *goversion.Release) http.Handler {
 	t.Helper()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if want == nil {

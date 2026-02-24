@@ -21,11 +21,15 @@ const (
 	SourcePlayground Source = "play.golang.org"
 )
 
-type Latest struct {
+type Release struct {
 	Version string
+	Stable  bool
 	Time    time.Time
 	Source  Source
 }
+
+// Deprecated: use Release instead.
+type Latest = Release
 
 type Fetcher struct {
 	url           string
@@ -53,7 +57,7 @@ func (f *Fetcher) SetHTTPClient(httpClient *http.Client) {
 	f.httpClient = httpClient
 }
 
-func (f *Fetcher) FetchLatest(ctx context.Context) (*Latest, error) {
+func (f *Fetcher) FetchLatest(ctx context.Context) (*Release, error) {
 	latest, err := f.fromGoDotDev(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get latest version via go.dev/VERSION?m=text: %w", err)
@@ -68,7 +72,7 @@ func (f *Fetcher) FetchLatest(ctx context.Context) (*Latest, error) {
 	return f.fromPlayground(ctx)
 }
 
-func (f *Fetcher) fromGoDotDev(ctx context.Context) (*Latest, error) {
+func (f *Fetcher) fromGoDotDev(ctx context.Context) (*Release, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, f.url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request to %q: %w", f.url, err)
@@ -105,14 +109,14 @@ func (f *Fetcher) fromGoDotDev(ctx context.Context) (*Latest, error) {
 		return nil, fmt.Errorf("failed to parse time (%q): %w", tmstr, err)
 	}
 
-	return &Latest{
+	return &Release{
 		Version: goversion,
 		Time:    tm,
 		Source:  SourceGoDotDev,
 	}, nil
 }
 
-func (f *Fetcher) fromPlayground(ctx context.Context) (*Latest, error) {
+func (f *Fetcher) fromPlayground(ctx context.Context) (*Release, error) {
 	cli := &goplayground.Client{
 		HTTPClient: f.httpClient,
 		BaseURL:    f.playgroundURL,
@@ -123,12 +127,12 @@ func (f *Fetcher) fromPlayground(ctx context.Context) (*Latest, error) {
 		return nil, fmt.Errorf("failed to get latest version via play.golang.org/version: %w", err)
 	}
 
-	return &Latest{
+	return &Release{
 		Version: ver.Version,
 		Source:  SourcePlayground,
 	}, nil
 }
 
-func FetchLatest(ctx context.Context) (*Latest, error) {
+func FetchLatest(ctx context.Context) (*Release, error) {
 	return NewFetcher().FetchLatest(ctx)
 }
