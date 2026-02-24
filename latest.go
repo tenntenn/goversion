@@ -30,6 +30,7 @@ type Latest struct {
 type Fetcher struct {
 	url           string
 	playgroundURL string
+	dlURL         string
 	httpClient    *http.Client
 }
 
