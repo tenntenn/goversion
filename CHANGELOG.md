@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.1.5](https://github.com/tenntenn/goversion/compare/v0.1.4...v0.1.5) - 2026-11-20
+
+- Update GitHub Actions and pin them to commit SHAs by @tenntenn in https://github.com/tenntenn/goversion/pull/16
+- Add aqua and Taskfile by @tenntenn in https://github.com/tenntenn/goversion/pull/17
+- Require Go 1.26 and update dependencies by @tenntenn in https://github.com/tenntenn/goversion/pull/15
+
 ## [v0.1.4](https://github.com/tenntenn/goversion/compare/v0.1.3...v0.1.4) - 2025-05-07
 - Add fallback by @tenntenn in https://github.com/tenntenn/goversion/pull/12
 
