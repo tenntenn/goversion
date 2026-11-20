@@ -1,0 +1,43 @@
+version: '3'
+
+tasks:
+  default:
+    deps: [test]
+
+  fmt:
+    desc: Run goimports
+    cmds:
+      - goimports -local $(go list -m) -w .
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
+
+  test:
+    desc: Run tests
+    deps: [fmt]
+    cmds:
+      - go test -race ./...
+
+  pinact:
+    desc: Pin GitHub Actions versions to commit SHAs
+    cmds:
+      - pinact run
+
+  update-go:
+    desc: Update Go (go.mod and SDK via golang.org/dl) to the latest stable release. Use "task update-go -y" to skip the prompt
+    vars:
+      CURRENT:
+        sh: go list -m -f '{{"{{"}}.GoVersion{{"}}"}}'
+      LATEST:
+        sh: go list -m -f '{{"{{"}}.Version{{"}}"}}' go@latest
+    prompt: Update Go from {{.CURRENT}} to {{.LATEST}}? (golang.org/dl/go{{.LATEST}} will also be downloaded)
+    cmds:
+      - go get go@{{.LATEST}}
+      - go mod tidy
+      - |
+        BIN=$(go env GOBIN)
+        BIN=${BIN:-$(go env GOPATH)/bin}
+        GOBIN=$BIN go install golang.org/dl/go{{.LATEST}}@latest
+        "$BIN/go{{.LATEST}}" download
